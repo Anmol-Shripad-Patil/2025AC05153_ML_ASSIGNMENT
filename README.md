@@ -18,7 +18,7 @@ Using the median as the threshold produces a balanced 50/50 target, keeping eval
 
 ## 3. GitHub Repository Link
 
-**Repository URL:** [https://github.com/Anmol-Shripad-Patil/Assignment_ML](https://github.com/Anmol-Shripad-Patil/Assignment_ML)
+**Repository URL:** [https://github.com/Anmol-Shripad-Patil/2025AC05153_ML_ASSIGNMENT](https://github.com/Anmol-Shripad-Patil/2025AC05153_ML_ASSIGNMENT)
 
 ## 4. Preprocessing Pipeline (`train_models.py`)
 
