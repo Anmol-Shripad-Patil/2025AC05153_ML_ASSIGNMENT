@@ -1,13 +1,4 @@
-"""
-app.py — Amazon Sales | High-Value Order Classifier
-====================================================
-Streamlit dashboard that evaluates 5 trained classification models on an
-uploaded test dataset (test_data.csv produced by train_models.py).
-
-Sidebar : dataset uploader + model dropdown
-Main    : dataset overview, 6 evaluation metrics, confusion matrix,
-          classification report
-"""
+# Streamlit dashboard for evaluating trained Amazon order classifiers.
 
 import joblib
 import matplotlib.pyplot as plt
@@ -25,7 +16,7 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-# ---------------------------------------------------------------- page setup
+# Page setup
 st.set_page_config(
     page_title="Amazon High-Value Order Classifier",
     page_icon="📦",
@@ -43,7 +34,7 @@ AMAZON_MODEL_FILES = {
 
 @st.cache_resource
 def load_amazon_artifacts():
-    """Load the scaler and column metadata saved during training."""
+    # Scaler and column metadata saved during training.
     amazon_scaler = joblib.load("model/scaler.joblib")
     amazon_meta = joblib.load("model/columns.joblib")
     return amazon_scaler, amazon_meta
@@ -57,7 +48,7 @@ def load_amazon_model(name: str):
 amazon_scaler, amazon_meta = load_amazon_artifacts()
 AMAZON_TARGET_COLUMN = amazon_meta["target_column"]
 
-# ------------------------------------------------------------------- sidebar
+# Sidebar
 st.sidebar.title("⚙️ Controls")
 uploaded_amazon_csv = st.sidebar.file_uploader(
     "Upload test_data.csv", type=["csv"],
@@ -73,7 +64,7 @@ st.sidebar.caption(
     f"(₹/$ {amazon_meta['threshold']:.2f}), 0 = at/below it."
 )
 
-# -------------------------------------------------------------------- header
+# Header
 st.title("📦 Amazon Sales — High-Value Order Classifier")
 st.markdown(
     "Predicting whether an order is a **high-value purchase** from its "
@@ -87,7 +78,7 @@ if uploaded_amazon_csv is None:
     st.info("⬅️ Upload **test_data.csv** from the sidebar to begin.")
     st.stop()
 
-# ------------------------------------------------------------- load the data
+# Load uploaded data
 try:
     amazon_orders_df = pd.read_csv(uploaded_amazon_csv)
 except Exception as exc:
@@ -105,8 +96,7 @@ if AMAZON_TARGET_COLUMN not in amazon_orders_df.columns:
 amazon_y_true = amazon_orders_df[AMAZON_TARGET_COLUMN]
 amazon_X = amazon_orders_df.drop(columns=[AMAZON_TARGET_COLUMN])
 
-# Align columns with the training feature order, then scale numerics with
-# the scaler fitted on the training split only (no leakage).
+# Align to training feature order, then scale with the fitted scaler.
 amazon_X = amazon_X.reindex(columns=amazon_meta["feature_columns"], fill_value=0)
 amazon_X[amazon_meta["numeric_columns"]] = amazon_scaler.transform(
     amazon_X[amazon_meta["numeric_columns"]]
@@ -121,12 +111,12 @@ with st.expander("🔍 Preview uploaded dataset"):
     )
     st.dataframe(amazon_orders_df.head(10), use_container_width=True)
 
-# ---------------------------------------------------------------- prediction
+# Prediction
 amazon_model = load_amazon_model(selected_amazon_model)
 amazon_y_pred = amazon_model.predict(amazon_X)
-amazon_y_prob = amazon_model.predict_proba(amazon_X)[:, 1]  # AUC needs probabilities
+amazon_y_prob = amazon_model.predict_proba(amazon_X)[:, 1]  # for AUC
 
-# ------------------------------------------------------------------- metrics
+# Metrics
 st.subheader(f"📊 Evaluation Metrics — {selected_amazon_model}")
 
 amazon_accuracy = accuracy_score(amazon_y_true, amazon_y_pred)
@@ -146,7 +136,7 @@ row2[0].metric(label="Recall", value=round(amazon_recall, 4))
 row2[1].metric(label="F1 Score", value=round(amazon_f1, 4))
 row2[2].metric(label="MCC", value=round(amazon_mcc, 4))
 
-# --------------------------------------------------------- confusion matrix
+# Confusion matrix + classification report
 left, right = st.columns([1, 1])
 
 with left:
