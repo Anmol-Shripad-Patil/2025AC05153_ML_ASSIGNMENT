@@ -18,7 +18,7 @@ Setting the median as the split point yields a balanced 50/50 target, which keep
 
 `Amazon.csv` — 100,000 orders × 20 columns. No missing values.
 
-**Source:** [Amazon Sale Kaggle URL](https://www.kaggle.com/datasets/rohiteng/amazon-sales-dataset)
+**Source:** [Amazon Sale Kaggle URL](https://www.kaggle.com/datasets/rohiteng/amazon-sales-dataset) - https://www.kaggle.com/datasets/rohiteng/amazon-sales-dataset
 
 | Property | Value |
 | :--- | :--- |
@@ -66,6 +66,7 @@ All metrics were computed on the same 20,000-row held-out test set. AUC was deri
 | Decision Tree | Axis-aligned threshold splits capture the price–quantity interaction almost perfectly, giving the highest raw accuracy (0.9956) and MCC (0.9911). Because the tree is grown unpruned its leaves are pure, so predicted probabilities land only at 0 or 1. That's why its AUC matches its balanced accuracy: it can label an order but not rank orders by confidence. |
 | kNN | Competitive because features were standardized before distance calculations. Precision (0.9417) exceeds recall (0.9050), so it misses some borderline high-value orders that sit close to the median threshold. |
 | Naive Bayes | Weakest accuracy and MCC because feature correlation (Tax is derived from UnitPrice and Quantity) violates the independence assumption. It has the highest precision (0.9501) but the lowest recall (0.8283), and its strong AUC (0.9811) shows ranking is still solid even though its decision threshold is off. |
+|Random Forest | The strongest model overall: highest AUC (0.9997), highest MCC (0.9828), and recall of 0.9950, with only 172 errors across 20,000 predictions. Bootstrap sampling and per-split feature subsampling average out the single tree's variance, and averaging across 100 trees yields graded probabilities instead of the lone tree's 0/1 outputs — which is why its AUC far exceeds the Decision Tree's despite slightly lower raw accuracy.|
 | **Overall Winner for this dataset** | **Random Forest** — highest AUC (0.9997), MCC 0.9828, and recall 0.9950 on high-value orders. Unlike the single tree it produces graded probabilities, and averaging 100 trees reduces variance, making it the most dependable model for unseen data. |
 
 **Note on the high accuracy scores:** `TotalAmount` was correctly dropped, but the target remains an arithmetic function of features that stay in the model (Quantity, UnitPrice, Discount, Tax, ShippingCost). Tree-based models can therefore reconstruct the relationship almost exactly. The gaps between models reflect each algorithm's ability to represent a multiplicative relationship rather than differences in predictive skill on noisy data.
